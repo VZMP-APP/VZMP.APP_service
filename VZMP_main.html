@@ -165,7 +165,7 @@
             color: #0f0;
         }
 
-        .os-box, .games-box {
+        .os-box, .games-box, .applications-box {
             background-color: rgba(0, 20, 0, 0.3);
             border: 1px solid #0f0;
             border-radius: 5px;
@@ -174,7 +174,7 @@
             position: relative;
         }
 
-        .os-box-title, .games-box-title {
+        .os-box-title, .games-box-title, .applications-box-title {
             position: absolute;
             top: -10px;
             left: 15px;
@@ -184,7 +184,7 @@
             color: #0f0;
         }
 
-        .os-icons, .game-icons {
+        .os-icons, .game-icons, .application-icons {
             display: flex;
             justify-content: space-around;
             flex-wrap: wrap;
@@ -192,7 +192,7 @@
             margin-top: 10px;
         }
 
-        .os-icon, .game-icon {
+        .os-icon, .game-icon, .application-icon {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -201,7 +201,7 @@
             text-align: center;
         }
 
-        .os-icon i, .game-icon i {
+        .os-icon i, .game-icon i, .application-icon i {
             font-size: 2rem;
             margin-bottom: 5px;
         }
@@ -290,7 +290,7 @@
             font-size: 0.9rem;
             color: #0a0;
         }
-
+        
         /* Matrix background effect */
         .matrix-bg {
             position: fixed;
@@ -402,11 +402,11 @@
                 gap: 10px;
             }
             
-            .os-icons, .game-icons {
+            .os-icons, .game-icons, .application-icons {
                 gap: 10px;
             }
             
-            .os-icon, .game-icon {
+            .os-icon, .game-icon, .application-icon {
                 width: 70px;
                 font-size: 0.8rem;
             }
@@ -429,11 +429,11 @@
                 padding: 8px 10px;
             }
             
-            .os-icons, .game-icons {
+            .os-icons, .game-icons, .application-icons {
                 gap: 5px;
             }
             
-            .os-icon, .game-icon {
+            .os-icon, .game-icon, .application-icon {
                 width: 60px;
                 font-size: 0.7rem;
             }
@@ -502,7 +502,35 @@
                 <li>Security everywhere.</li>
                 <li>Any Store Application will be cracked if requested.</li>
                 <li>Serverside plugins</li>
-                <li>For Games, Websites and more</li>
+            </ul>
+            
+            <div class="applications-box">
+                <div class="applications-box-title">Supported Applications</div>
+                <div class="application-icons">
+                    <div class="application-icon">
+                        <i class="fas fa-gamepad"></i>
+                        <span>Games</span>
+                    </div>
+                    <div class="application-icon">
+                        <i class="fas fa-globe"></i>
+                        <span>Websites</span>
+                    </div>
+                    <div class="application-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Mobile Apps</span>
+                    </div>
+                    <div class="application-icon">
+                        <i class="fas fa-desktop"></i>
+                        <span>Desktop Apps</span>
+                    </div>
+                    <div class="application-icon">
+                        <i class="fas fa-cloud"></i>
+                        <span>Cloud Services</span>
+                    </div>
+                </div>
+            </div>
+            
+            <ul>
                 <li>Custom VZMP.APP Undetected Executors, ModMenus, Injectors and more!</li>
             </ul>
             
@@ -574,7 +602,8 @@
             </div>
             
             <a href="https://vzmp-app.github.io/VZMP.APP_service/VZMP_store.html" class="button">Get VZMP.APP now!</a>
-            <a href="https://vzmp-app.github.io/VZMP.APP_service/VZMP_about.html" class="button">About VZMP.APP</a>
+            <a href="https://vzmp-app.github.io/VZMP.APP_service/VZMP_about.html" class="button">About VZMP.APP Service.</a>
+            
             <div class="footer">
                 <div class="footer-item">©VZMP.APP</div>
                 <div class="footer-item">©VZMP.EXE</div>
@@ -592,7 +621,7 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         
-        const chars = "01010101010101010101010101010101";
+        const chars "01010101010101010101010101010101";
         const charArray = chars.split("");
         
         const font_size = 14;
