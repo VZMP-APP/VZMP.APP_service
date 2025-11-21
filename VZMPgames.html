@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VZMP.APP - Terminal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #0f0;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Terminal container */
+        .terminal {
+            max-width: 900px;
+            margin: 0 auto;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            background-color: rgba(10, 10, 10, 0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Terminal header */
+        .terminal-header {
+            background-color: #0a0a0a;
+            padding: 10px 15px;
+            border-bottom: 1px solid #0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-shadow: 0 0 5px #0f0;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .close {
+            background-color: #ff5f56;
+        }
+
+        .minimize {
+            background-color: #ffbd2e;
+        }
+
+        .maximize {
+            background-color: #27c93f;
+        }
+
+        /* Terminal content */
+        .terminal-content {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        /* Typing animation */
+        .typing {
+            overflow: hidden;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: 0.15em;
+            animation: typing 3.5s steps(40, end);
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        /* Blinking cursor */
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background-color: #0f0;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Content sections */
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 10px #0f0;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin: 25px 0 15px;
+            color: #0f0;
+            border-bottom: 1px dashed #0f0;
+            padding-bottom: 5px;
+        }
+
+        .info-box {
+            background-color: rgba(0, 30, 0, 0.3);
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .info-icon {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-icon i {
+            font-size: 1.5rem;
+            color: #0f0;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        li:before {
+            content: ">";
+            position: absolute;
+            left: -15px;
+            color: #0f0;
+        }
+
+        .os-box, .games-box {
+            background-color: rgba(0, 20, 0, 0.3);
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .os-box-title, .games-box-title {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background-color: #0a0a0a;
+            padding: 0 10px;
+            font-size: 0.9rem;
+            color: #0f0;
+        }
+
+        .os-icons, .game-icons {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .os-icon, .game-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.9rem;
+            width: 80px;
+            text-align: center;
+        }
+
+        .os-icon i, .game-icon i {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .primary-apps {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .app-card {
+            background-color: rgba(0, 20, 0, 0.3);
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .app-card h3 {
+            color: #0f0;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 30px auto;
+            padding: 15px;
+            background-color: #0a0a0a;
+            color: #0f0;
+            border: 2px solid #0f0;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button:hover {
+            background-color: #0f0;
+            color: #000;
+            box-shadow: 0 0 20px #0f0;
+        }
+
+        .button:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .button:hover:before {
+            left: 100%;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px dashed #0f0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-item {
+            font-size: 0.9rem;
+            color: #0a0;
+        }
+
+        /* Matrix background effect */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        /* Glitch effect */
+        .glitch {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch:before, .glitch:after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch:before {
+            left: 2px;
+            text-shadow: -2px 0 #ff00ff;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+
+        .glitch:after {
+            left: -2px;
+            text-shadow: -2px 0 #00ffff;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(42px, 9999px, 44px, 0); }
+            5% { clip: rect(12px, 9999px, 59px, 0); }
+            10% { clip: rect(48px, 9999px, 29px, 0); }
+            15% { clip: rect(42px, 9999px, 73px, 0); }
+            20% { clip: rect(63px, 9999px, 27px, 0); }
+            25% { clip: rect(34px, 9999px, 55px, 0); }
+            30% { clip: rect(86px, 9999px, 73px, 0); }
+            35% { clip: rect(20px, 9999px, 20px, 0); }
+            40% { clip: rect(26px, 9999px, 60px, 0); }
+            45% { clip: rect(25px, 9999px, 66px, 0); }
+            50% { clip: rect(57px, 9999px, 98px, 0); }
+            55% { clip: rect(5px, 9999px, 46px, 0); }
+            60% { clip: rect(82px, 9999px, 31px, 0); }
+            65% { clip: rect(54px, 9999px, 27px, 0); }
+            70% { clip: rect(28px, 9999px, 99px, 0); }
+            75% { clip: rect(45px, 9999px, 69px, 0); }
+            80% { clip: rect(23px, 9999px, 85px, 0); }
+            85% { clip: rect(54px, 9999px, 84px, 0); }
+            90% { clip: rect(45px, 9999px, 47px, 0); }
+            95% { clip: rect(37px, 9999px, 20px, 0); }
+            100% { clip: rect(4px, 9999px, 91px, 0); }
+        }
+
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            5% { clip: rect(52px, 9999px, 74px, 0); }
+            10% { clip: rect(79px, 9999px, 85px, 0); }
+            15% { clip: rect(75px, 9999px, 5px, 0); }
+            20% { clip: rect(67px, 9999px, 61px, 0); }
+            25% { clip: rect(14px, 9999px, 79px, 0); }
+            30% { clip: rect(1px, 9999px, 66px, 0); }
+            35% { clip: rect(86px, 9999px, 30px, 0); }
+            40% { clip: rect(23px, 9999px, 98px, 0); }
+            45% { clip: rect(85px, 9999px, 72px, 0); }
+            50% { clip: rect(71px, 9999px, 75px, 0); }
+            55% { clip: rect(2px, 9999px, 48px, 0); }
+            60% { clip: rect(30px, 9999px, 16px, 0); }
+            65% { clip: rect(59px, 9999px, 50px, 0); }
+            70% { clip: rect(41px, 9999px, 62px, 0); }
+            75% { clip: rect(2px, 9999px, 82px, 0); }
+            80% { clip: rect(47px, 9999px, 73px, 0); }
+            85% { clip: rect(3px, 9999px, 27px, 0); }
+            90% { clip: rect(26px, 9999px, 55px, 0); }
+            95% { clip: rect(42px, 9999px, 97px, 0); }
+            100% { clip: rect(38px, 9999px, 49px, 0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+            
+            .terminal-content {
+                padding: 15px;
+            }
+            
+            .primary-apps {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .os-icons, .game-icons {
+                gap: 10px;
+            }
+            
+            .os-icon, .game-icon {
+                width: 70px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            h2 {
+                font-size: 1.1rem;
+            }
+            
+            .terminal-header {
+                padding: 8px 10px;
+            }
+            
+            .os-icons, .game-icons {
+                gap: 5px;
+            }
+            
+            .os-icon, .game-icon {
+                width: 60px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix background -->
+    <canvas class="matrix-bg" id="matrix"></canvas>
+    
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-title">VZMP.APP - TERMINAL</div>
+            <div class="terminal-controls">
+                <div class="control close"></div>
+                <div class="control minimize"></div>
+                <div class="control maximize"></div>
+            </div>
+        </div>
+        
+        <div class="terminal-content">
+            <h1 class="glitch" data-text="VZMP.APP">VZMP.APP<span class="cursor"></span></h1>
+            
+            <div class="info-box">
+                <div class="info-icon">
+                    <i class="fas fa-info-circle"></i>
+                    <span>VZMP.APP the only way to make your device yours.</span>
+                </div>
+            </div>
+            
+            <h2>Why VZMP.APP?</h2>
+            <ul>
+                <li>Full Device Access.</li>
+                <li>Full Device Modification.</li>
+                <li>For all operating systems.</li>
+            </ul>
+            
+            <div class="os-box">
+                <div class="os-box-title">Supported Operating Systems</div>
+                <div class="os-icons">
+                    <div class="os-icon">
+                        <i class="fab fa-windows"></i>
+                        <span>Windows</span>
+                    </div>
+                    <div class="os-icon">
+                        <i class="fab fa-linux"></i>
+                        <span>Linux</span>
+                    </div>
+                    <div class="os-icon">
+                        <i class="fab fa-apple"></i>
+                        <span>MacOS</span>
+                    </div>
+                    <div class="os-icon">
+                        <i class="fab fa-app-store-ios"></i>
+                        <span>iOS</span>
+                    </div>
+                    <div class="os-icon">
+                        <i class="fab fa-android"></i>
+                        <span>Android</span>
+                    </div>
+                </div>
+            </div>
+            
+            <h2>What does VZMP.APP offer?</h2>
+            <ul>
+                <li>Security everywhere.</li>
+                <li>Any Store Application will be cracked if requested.</li>
+                <li>Serverside plugins</li>
+                <li>For Games, Websites and more</li>
+                <li>Custom VZMP.APP Undetected Executors, ModMenus, Injectors and more!</li>
+            </ul>
+            
+            <h2>Primary Apps we customize for you:</h2>
+            <div class="primary-apps">
+                <div class="app-card">
+                    <h3>Discord</h3>
+                    <ul>
+                        <li>Plugins and Themes</li>
+                        <li>Nuker, Spammer, Token Grabber via Call</li>
+                        <li>Crash Modules</li>
+                        <li>Selfbots Undetected</li>
+                    </ul>
+                </div>
+                
+                <div class="app-card">
+                    <h3>YouTube</h3>
+                    <ul>
+                        <li>YouTube Premium Subscription Cracked</li>
+                        <li>Content Farm, Viewer Farm & More</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="games-box">
+                <div class="games-box-title">Supported Games</div>
+                <div class="game-icons">
+                    <div class="game-icon">
+                        <i class="fas fa-cube"></i>
+                        <span>Minecraft</span>
+                    </div>
+                    <div class="game-icon">
+                        <i class="fas fa-robot"></i>
+                        <span>Roblox</span>
+                    </div>
+                    <div class="game-icon">
+                        <i class="fas fa-crosshairs"></i>
+                        <span>Call of Duty</span>
+                    </div>
+                    <div class="game-icon">
+                        <i class="fas fa-car"></i>
+                        <span>GTA V</span>
+                    </div>
+                    <div class="game-icon">
+                        <i class="fas fa-user-astronaut"></i>
+                        <span>Among Us</span>
+                    </div>
+                    <div class="game-icon">
+                        <i class="fas fa-fort-awesome"></i>
+                        <span>Fortnite</span>
+                    </div>
+                    <div class="game-icon">
+                        <i class="fas fa-dragon"></i>
+                        <span>League of Legends</span>
+                    </div>
+                    <div class="game-icon">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Valorant</span>
+                    </div>
+                    <div class="game-icon">
+                        <i class="fas fa-globe-americas"></i>
+                        <span>Apex Legends</span>
+                    </div>
+                    <div class="game-icon">
+                        <i class="fas fa-basketball-ball"></i>
+                        <span>Rocket League</span>
+                    </div>
+                </div>
+            </div>
+            
+            <a href="#" class="button">Get VZMP.APP now!</a>
+            
+            <div class="footer">
+                <div class="footer-item">©VZMP.APP</div>
+                <div class="footer-item">©VZMP.EXE</div>
+                <div class="footer-item">©VZMP.IPA</div>
+                <div class="footer-item">©VZMP.APK</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Matrix background effect
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const chars = "01010101010101010101010101010101";
+        const charArray = chars.split("");
+        
+        const font_size = 14;
+        const columns = canvas.width / font_size;
+        
+        const drops = [];
+        
+        for(let x = 0; x < columns; x++)
+            drops[x] = 1;
+        
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "#0F0";
+            ctx.font = font_size + "px arial";
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * font_size, drops[i] * font_size);
+                
+                if(drops[i] * font_size > canvas.height && Math.random() > 0.975)
+                    drops[i] = 0;
+                
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 35);
+        
+        // Resize canvas on window resize
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        // Terminal typing effect
+        document.addEventListener('DOMContentLoaded', function() {
+            const title = document.querySelector('h1');
+            const cursor = document.querySelector('.cursor');
+            
+            // Simulate typing effect
+            setTimeout(() => {
+                cursor.style.animation = 'none';
+                setTimeout(() => {
+                    cursor.style.animation = 'blink 1s infinite';
+                }, 500);
+            }, 3500);
+        });
+    </script>
+</body>
+</html>
