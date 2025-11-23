@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VZMP.APP - Online Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #0ff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        .terminal {
+            max-width: 900px;
+            margin: 0 auto;
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            background-color: rgba(10, 10, 10, 0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            background-color: #0a0a0a;
+            padding: 10px 15px;
+            border-bottom: 1px solid #0ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-shadow: 0 0 5px #0ff;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .close {
+            background-color: #ff5f56;
+        }
+
+        .minimize {
+            background-color: #ffbd2e;
+        }
+
+        .maximize {
+            background-color: #27c93f;
+        }
+
+        .terminal-content {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background-color: #0ff;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 10px #0ff;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin: 25px 0 15px;
+            color: #0ff;
+            border-bottom: 1px dashed #0ff;
+            padding-bottom: 5px;
+        }
+
+        .info-box {
+            background-color: rgba(0, 30, 30, 0.3);
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        .info-icon {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-icon i {
+            font-size: 1.5rem;
+            color: #0ff;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        li:before {
+            content: ">";
+            position: absolute;
+            left: -15px;
+            color: #0ff;
+        }
+
+        .os-box, .games-box, .applications-box {
+            background-color: rgba(0, 20, 20, 0.3);
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .os-box-title, .games-box-title, .applications-box-title {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background-color: #0a0a0a;
+            padding: 0 10px;
+            font-size: 0.9rem;
+            color: #0ff;
+        }
+
+        .os-icons, .game-icons, .application-icons {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .os-icon, .game-icon, .application-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.9rem;
+            width: 80px;
+            text-align: center;
+        }
+
+        .os-icon i, .game-icon i, .application-icon i {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .primary-apps {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .app-card {
+            background-color: rgba(0, 20, 20, 0.3);
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .app-card h3 {
+            color: #0ff;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 30px auto;
+            padding: 15px;
+            background-color: #0a0a0a;
+            color: #0ff;
+            border: 2px solid #0ff;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button:hover {
+            background-color: #0ff;
+            color: #000;
+            box-shadow: 0 0 20px #0ff;
+        }
+
+        .button:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .button:hover:before {
+            left: 100%;
+        }
+
+        .terminal-float-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: #0a0a0a;
+            border: 2px solid #0ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            z-index: 1000;
+            text-decoration: none;
+        }
+
+        .terminal-float-button:hover {
+            background-color: #0ff;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            transform: scale(1.1);
+        }
+
+        .terminal-float-button i {
+            font-size: 1.8rem;
+            color: #0ff;
+            transition: color 0.3s ease;
+        }
+
+        .terminal-float-button:hover i {
+            color: #000;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px dashed #0ff;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-item {
+            font-size: 0.9rem;
+            color: #0aa;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .glitch {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch:before, .glitch:after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch:before {
+            left: 2px;
+            text-shadow: -2px 0 #ff00ff;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+
+        .glitch:after {
+            left: -2px;
+            text-shadow: -2px 0 #00ffff;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(42px, 9999px, 44px, 0); }
+            5% { clip: rect(12px, 9999px, 59px, 0); }
+            10% { clip: rect(48px, 9999px, 29px, 0); }
+            15% { clip: rect(42px, 9999px, 73px, 0); }
+            20% { clip: rect(63px, 9999px, 27px, 0); }
+            25% { clip: rect(34px, 9999px, 55px, 0); }
+            30% { clip: rect(86px, 9999px, 73px, 0); }
+            35% { clip: rect(20px, 9999px, 20px, 0); }
+            40% { clip: rect(26px, 9999px, 60px, 0); }
+            45% { clip: rect(25px, 9999px, 66px, 0); }
+            50% { clip: rect(57px, 9999px, 98px, 0); }
+            55% { clip: rect(5px, 9999px, 46px, 0); }
+            60% { clip: rect(82px, 9999px, 31px, 0); }
+            65% { clip: rect(54px, 9999px, 27px, 0); }
+            70% { clip: rect(28px, 9999px, 99px, 0); }
+            75% { clip: rect(45px, 9999px, 69px, 0); }
+            80% { clip: rect(23px, 9999px, 85px, 0); }
+            85% { clip: rect(54px, 9999px, 84px, 0); }
+            90% { clip: rect(45px, 9999px, 47px, 0); }
+            95% { clip: rect(37px, 9999px, 20px, 0); }
+            100% { clip: rect(4px, 9999px, 91px, 0); }
+        }
+
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            5% { clip: rect(52px, 9999px, 74px, 0); }
+            10% { clip: rect(79px, 9999px, 85px, 0); }
+            15% { clip: rect(75px, 9999px, 5px, 0); }
+            20% { clip: rect(67px, 9999px, 61px, 0); }
+            25% { clip: rect(14px, 9999px, 79px, 0); }
+            30% { clip: rect(1px, 9999px, 66px, 0); }
+            35% { clip: rect(86px, 9999px, 30px, 0); }
+            40% { clip: rect(23px, 9999px, 98px, 0); }
+            45% { clip: rect(85px, 9999px, 72px, 0); }
+            50% { clip: rect(71px, 9999px, 75px, 0); }
+            55% { clip: rect(2px, 9999px, 48px, 0); }
+            60% { clip: rect(30px, 9999px, 16px, 0); }
+            65% { clip: rect(59px, 9999px, 50px, 0); }
+            70% { clip: rect(41px, 9999px, 62px, 0); }
+            75% { clip: rect(2px, 9999px, 82px, 0); }
+            80% { clip: rect(47px, 9999px, 73px, 0); }
+            85% { clip: rect(3px, 9999px, 27px, 0); }
+            90% { clip: rect(26px, 9999px, 55px, 0); }
+            95% { clip: rect(42px, 9999px, 97px, 0); }
+            100% { clip: rect(38px, 9999px, 49px, 0); }
+        }
+
+        /* New styles for the online tool */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .ip-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px;
+            background-color: rgba(0, 20, 20, 0.3);
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            color: #0ff;
+            font-size: 1rem;
+        }
+
+        .ip-input::placeholder {
+            color: #0aa;
+        }
+
+        .action-button {
+            padding: 12px 20px;
+            background-color: #0a0a0a;
+            color: #0ff;
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .action-button:hover {
+            background-color: #0ff;
+            color: #000;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .action-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result-message {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: rgba(0, 30, 30, 0.3);
+            border-left: 3px solid #0ff;
+        }
+
+        .collapsible {
+            margin: 20px 0;
+        }
+
+        .collapsible-header {
+            padding: 15px;
+            background-color: rgba(0, 20, 20, 0.3);
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .collapsible-header:hover {
+            background-color: rgba(0, 30, 30, 0.5);
+        }
+
+        .collapsible-content {
+            padding: 15px;
+            background-color: rgba(0, 10, 10, 0.3);
+            border: 1px solid #0ff;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            display: none;
+        }
+
+        .collapsible.active .collapsible-content {
+            display: block;
+        }
+
+        .collapsible.active .collapsible-header {
+            border-radius: 5px 5px 0 0;
+        }
+
+        .command-prompt {
+            margin-top: 30px;
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .command-header {
+            background-color: rgba(0, 20, 20, 0.5);
+            padding: 10px 15px;
+            border-bottom: 1px solid #0ff;
+            font-weight: bold;
+        }
+
+        .command-output {
+            height: 200px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: rgba(0, 10, 10, 0.3);
+        }
+
+        .command-line {
+            display: flex;
+            background-color: rgba(0, 10, 10, 0.5);
+            border-top: 1px solid #0ff;
+        }
+
+        .command-prefix {
+            padding: 10px 15px;
+            background-color: rgba(0, 20, 20, 0.5);
+            border-right: 1px solid #0ff;
+        }
+
+        .command-input {
+            flex: 1;
+            padding: 10px;
+            background-color: transparent;
+            border: none;
+            color: #0ff;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .loading-bar {
+            height: 4px;
+            background-color: #0ff;
+            width: 0%;
+            transition: width 0.1s linear;
+            margin-top: 5px;
+        }
+
+        .tool-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .tool-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-option input[type="checkbox"] {
+            accent-color: #0ff;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+            
+            .terminal-content {
+                padding: 15px;
+            }
+            
+            .primary-apps {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .os-icons, .game-icons, .application-icons {
+                gap: 10px;
+            }
+            
+            .os-icon, .game-icon, .application-icon {
+                width: 70px;
+                font-size: 0.8rem;
+            }
+
+            .terminal-float-button {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .terminal-float-button i {
+                font-size: 1.5rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .ip-input {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            h2 {
+                font-size: 1.1rem;
+            }
+            
+            .terminal-header {
+                padding: 8px 10px;
+            }
+            
+            .os-icons, .game-icons, .application-icons {
+                gap: 5px;
+            }
+            
+            .os-icon, .game-icon, .application-icon {
+                width: 60px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas class="matrix-bg" id="matrix"></canvas>
+    
+    <a href="https://vzmp-app.github.io/VZMP.APP_service/VZMP_main.html" class="terminal-float-button" title="Back to Main Terminal">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-title">VZMP.APP - ONLINE TOOL</div>
+            <div class="terminal-controls">
+                <div class="control close"></div>
+                <div class="control minimize"></div>
+                <div class="control maximize"></div>
+            </div>
+        </div>
+        
+        <div class="terminal-content">
+            <h1 class="glitch" data-text="VZMP.APP ONLINE TOOL">VZMP.APP ONLINE TOOL<span class="cursor"></span></h1>
+            
+            <div class="info-box">
+                <div class="info-icon">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Welcome to the Online Tool by VZMP.APP, here you can attack, grab and use commands etc.</span>
+                </div>
+            </div>
+            
+            <h2>Target Selection</h2>
+            <div class="input-group">
+                <input type="text" class="ip-input" placeholder="Enter IP Address (xxx.xxx.xxx.xxx)" id="ip-input">
+                <button class="action-button" id="attach-button">Attach</button>
+                <button class="action-button" id="inject-button">Inject</button>
+            </div>
+            
+            <div id="attach-result" class="result-message" style="display: none;"></div>
+            <div id="inject-result" class="result-message" style="display: none;"></div>
+            
+            <div class="collapsible" id="ddos-tool">
+                <div class="collapsible-header">
+                    <span>DDoS Tool</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="collapsible-content">
+                    <p>Configure DDoS attack parameters:</p>
+                    <div class="tool-options">
+                        <div class="tool-option">
+                            <input type="checkbox" id="udp-flood">
+                            <label for="udp-flood">UDP Flood</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="tcp-flood">
+                            <label for="tcp-flood">TCP Flood</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="http-flood">
+                            <label for="http-flood">HTTP Flood</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="slowloris">
+                            <label for="slowloris">Slowloris Attack</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" class="ip-input" placeholder="Duration (seconds)" id="ddos-duration" min="1" max="3600">
+                        <input type="number" class="ip-input" placeholder="Threads" id="ddos-threads" min="1" max="1000">
+                        <button class="action-button" id="start-ddos">Start DDoS</button>
+                    </div>
+                    <div id="ddos-result" class="result-message" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="collapsible" id="info-grabber">
+                <div class="collapsible-header">
+                    <span>Info Grabber</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="collapsible-content">
+                    <p>Select information to grab from target:</p>
+                    <div class="tool-options">
+                        <div class="tool-option">
+                            <input type="checkbox" id="system-info">
+                            <label for="system-info">System Information</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="network-info">
+                            <label for="network-info">Network Information</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="browser-data">
+                            <label for="browser-data">Browser Data</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="password-data">
+                            <label for="password-data">Saved Passwords</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="cookies-data">
+                            <label for="cookies-data">Cookies</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="location-data">
+                            <label for="location-data">Location Data</label>
+                        </div>
+                    </div>
+                    <button class="action-button" id="grab-info">Grab Information</button>
+                    <div id="grabber-result" class="result-message" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="collapsible" id="tracker-tool">
+                <div class="collapsible-header">
+                    <span>Tracker Tool</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="collapsible-content">
+                    <p>Configure tracking parameters:</p>
+                    <div class="tool-options">
+                        <div class="tool-option">
+                            <input type="checkbox" id="location-track">
+                            <label for="location-track">Location Tracking</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="keystroke-log">
+                            <label for="keystroke-log">Keystroke Logging</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="screen-capture">
+                            <label for="screen-capture">Screen Capture</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="mic-record">
+                            <label for="mic-record">Microphone Recording</label>
+                        </div>
+                        <div class="tool-option">
+                            <input type="checkbox" id="webcam-access">
+                            <label for="webcam-access">Webcam Access</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" class="ip-input" placeholder="Tracking Duration (hours)" id="track-duration" min="1" max="720">
+                        <button class="action-button" id="start-tracking">Start Tracking</button>
+                    </div>
+                    <div id="tracker-result" class="result-message" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="command-prompt">
+                <div class="command-header">VZMP.APP Command Prompt</div>
+                <div class="command-output" id="command-output">
+                    <div>VZMP.APP Online Tool v2.1.3</div>
+                    <div>Type 'help' for available commands</div>
+                    <div>></div>
+                </div>
+                <div class="command-line">
+                    <div class="command-prefix">VZMP></div>
+                    <input type="text" class="command-input" id="command-input" placeholder="Enter command...">
+                </div>
+            </div>
+            
+            <div class="footer">
+                <div class="footer-item">©VZMP.APP</div>
+                <div class="footer-item">©VZMP.EXE</div>
+                <div class="footer-item">©VZMP.IPA</div>
+                <div class="footer-item">©VZMP.APK</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Matrix background effect
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const chars = "01010101010101010101010101010101";
+        const charArray = chars.split("");
+        
+        const font_size = 14;
+        const columns = canvas.width / font_size;
+        
+        const drops = [];
+        
+        for(let x = 0; x < columns; x++)
+            drops[x] = 1;
+        
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "#0FF";
+            ctx.font = font_size + "px arial";
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * font_size, drops[i] * font_size);
+                
+                if(drops[i] * font_size > canvas.height && Math.random() > 0.975)
+                    drops[i] = 0;
+                
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 35);
+        
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        // Collapsible sections
+        document.querySelectorAll('.collapsible-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const parent = this.parentElement;
+                parent.classList.toggle('active');
+                
+                const icon = this.querySelector('i');
+                if (parent.classList.contains('active')) {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            });
+        });
+        
+        // Button functionality with loading simulation
+        function simulateLoading(button, duration, loadingText, successText, resultElement) {
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = loadingText;
+            
+            // Create loading bar
+            const loadingBar = document.createElement('div');
+            loadingBar.className = 'loading-bar';
+            button.parentNode.appendChild(loadingBar);
+            
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    button.disabled = false;
+                    button.textContent = originalText;
+                    loadingBar.remove();
+                    
+                    if (resultElement) {
+                        resultElement.textContent = successText;
+                        resultElement.style.display = 'block';
+                    }
+                } else {
+                    width += 100 / (duration / 100);
+                    loadingBar.style.width = width + '%';
+                }
+            }, 100);
+        }
+        
+        // Attach button
+        document.getElementById('attach-button').addEventListener('click', function() {
+            const ipInput = document.getElementById('ip-input').value;
+            if (!ipInput || !isValidIP(ipInput)) {
+                alert('Please enter a valid IP address');
+                return;
+            }
+            
+            simulateLoading(
+                this, 
+                10000, 
+                'Attaching to target...', 
+                `Attached to IP: ${ipInput}`,
+                document.getElementById('attach-result')
+            );
+        });
+        
+        // Inject button
+        document.getElementById('inject-button').addEventListener('click', function() {
+            const ipInput = document.getElementById('ip-input').value;
+            if (!ipInput || !isValidIP(ipInput)) {
+                alert('Please enter a valid IP address');
+                return;
+            }
+            
+            simulateLoading(
+                this, 
+                13000, 
+                'Injecting VZMP.APP code...', 
+                `Injected VZMP.APP code in ${ipInput}'s Router.`,
+                document.getElementById('inject-result')
+            );
+        });
+        
+        // DDoS button
+        document.getElementById('start-ddos').addEventListener('click', function() {
+            const ipInput = document.getElementById('ip-input').value;
+            if (!ipInput || !isValidIP(ipInput)) {
+                alert('Please enter a valid IP address');
+                return;
+            }
+            
+            simulateLoading(
+                this, 
+                15000, 
+                'Initiating DDoS attack...', 
+                `DDoS attack launched against ${ipInput}`,
+                document.getElementById('ddos-result')
+            );
+        });
+        
+        // Info Grabber button
+        document.getElementById('grab-info').addEventListener('click', function() {
+            const ipInput = document.getElementById('ip-input').value;
+            if (!ipInput || !isValidIP(ipInput)) {
+                alert('Please enter a valid IP address');
+                return;
+            }
+            
+            simulateLoading(
+                this, 
+                12000, 
+                'Grabbing information...', 
+                `Information successfully grabbed from ${ipInput}`,
+                document.getElementById('grabber-result')
+            );
+        });
+        
+        // Tracker button
+        document.getElementById('start-tracking').addEventListener('click', function() {
+            const ipInput = document.getElementById('ip-input').value;
+            if (!ipInput || !isValidIP(ipInput)) {
+                alert('Please enter a valid IP address');
+                return;
+            }
+            
+            simulateLoading(
+                this, 
+                11000, 
+                'Starting tracking...', 
+                `Tracking initiated for ${ipInput}`,
+                document.getElementById('tracker-result')
+            );
+        });
+        
+        // IP validation
+        function isValidIP(ip) {
+            const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!ipRegex.test(ip)) return false;
+            
+            const parts = ip.split('.');
+            for (let part of parts) {
+                if (parseInt(part) > 255) return false;
+            }
+            
+            return true;
+        }
+        
+        // Command prompt functionality
+        const commandInput = document.getElementById('command-input');
+        const commandOutput = document.getElementById('command-output');
+        
+        const commands = {
+            'help': 'Available commands: help, clear, status, scan, exploit, decrypt, encrypt, backup, restore, shutdown, reboot, history, logs, network, processes, users, firewall, ports, services, system, version, update, config, debug, test, connect, disconnect, ping, trace, whois, dns, scanports',
+            'clear': function() { commandOutput.innerHTML = '<div>></div>'; },
+            'status': 'VZMP.APP Online Tool is running. All systems operational.',
+            'scan': 'Scanning network... No vulnerabilities detected.',
+            'exploit': 'No exploits available for current target.',
+            'decrypt': 'Decryption module loaded. No data to decrypt.',
+            'encrypt': 'Encryption module loaded. No data to encrypt.',
+            'backup': 'Backup created successfully.',
+            'restore': 'Restore completed successfully.',
+            'shutdown': 'Shutdown command sent to target.',
+            'reboot': 'Reboot command sent to target.',
+            'history': 'Command history is empty.',
+            'logs': 'Displaying system logs...',
+            'network': 'Network configuration displayed.',
+            'processes': 'Listing running processes...',
+            'users': '3 users currently logged in.',
+            'firewall': 'Firewall status: Active',
+            'ports': 'Scanning open ports...',
+            'services': 'Listing active services...',
+            'system': 'System information displayed.',
+            'version': 'VZMP.APP Online Tool v2.1.3',
+            'update': 'Checking for updates... You have the latest version.',
+            'config': 'Configuration file loaded.',
+            'debug': 'Debug mode activated.',
+            'test': 'Running diagnostics... All tests passed.',
+            'connect': 'Connection established.',
+            'disconnect': 'Disconnected from target.',
+            'ping': 'Pinging target... Response time: 47ms',
+            'trace': 'Tracing route to target...',
+            'whois': 'WHOIS information retrieved.',
+            'dns': 'DNS records displayed.',
+            'scanports': 'Scanning ports on target...'
+        };
+        
+        commandInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const command = this.value.trim().toLowerCase();
+                this.value = '';
+                
+                // Add command to output
+                const newLine = document.createElement('div');
+                newLine.textContent = '> ' + command;
+                commandOutput.appendChild(newLine);
+                
+                // Process command
+                if (commands.hasOwnProperty(command)) {
+                    if (typeof commands[command] === 'function') {
+                        commands[command]();
+                    } else {
+                        const response = document.createElement('div');
+                        response.textContent = commands[command];
+                        commandOutput.appendChild(response);
+                    }
+                } else {
+                    const response = document.createElement('div');
+                    response.textContent = `Command not found: ${command}. Type 'help' for available commands.`;
+                    commandOutput.appendChild(response);
+                }
+                
+                // Add new prompt
+                const prompt = document.createElement('div');
+                prompt.textContent = '>';
+                commandOutput.appendChild(prompt);
+                
+                // Scroll to bottom
+                commandOutput.scrollTop = commandOutput.scrollHeight;
+            }
+        });
+        
+        // Cursor animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const title = document.querySelector('h1');
+            const cursor = document.querySelector('.cursor');
+            
+            setTimeout(() => {
+                cursor.style.animation = 'none';
+                setTimeout(() => {
+                    cursor.style.animation = 'blink 1s infinite';
+                }, 500);
+            }, 3500);
+        });
+    </script>
+</body>
+</html>
